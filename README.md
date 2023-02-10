@@ -1,5 +1,5 @@
 # xsoar_data_dumper
-XSOAR Data Dumper enables the fetching and storing of incidents from XSOAR. They incidents can be stored in JSON files or CouchDB
+XSOAR Data Dumper enables the fetching and storing of incidents from XSOAR. The incidents can be stored in JSON files or CouchDB
 
 ## Usage
     usage: DataDumper.py [-h] [--init] [--run] --auth AUTH --base BASE [--couchdb COUCHDB]
