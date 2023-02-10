@@ -44,6 +44,8 @@ def datadump_to_couchdb(URLload, header, couchLINK):
         dataset = requests.get(URLload+incid[0], headers=header, verify=False)
         JObject = json.loads(dataset.text)
         db.save(JObject)
+        cur.execute("UPDATE incidents SET fetched = 'Done' WHERE id = '%s' " % incid[0])
+        con.commit()
 
 
 def datadump(URLload, header):
