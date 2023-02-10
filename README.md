@@ -24,6 +24,10 @@ XSOAR Data Dumper enables the fetching and storing of incidents from XSOAR. They
 * run with **--run** which will start fetching the incidents
 * Optional **--couchdb DATA** which will write all incidents into CouchDB instead of files
 
+# Cleanup Procedures
+* if the scripts stops during **--run** simply run the command again, the script will resume teh Download
+* If you need to start from scratch, simply delete the **DataDumper.db** and all files **INCIDENT-*.json** or drop the CouchDB database
+
 # Disclaimer
 This is a free script which has been tested against a small instance (1200 incidents). Please report bugs and issues via GitHub. Usage at your own risk
 
