@@ -16,7 +16,7 @@ XSOAR Data Dumper enables the fetching and storing of incidents from XSOAR. They
       
 # Prerequesits
 * Authkey of XSOAR (Settings -> Integrations -> Api Keys)
-* install requirements.txt (pip3 install -r requiremnts.txt)
+* install requirements.txt (pip3 install -r requirements.txt)
 * (Optional) CouchDB Database (https://hub.docker.com/_/couchdb/)
 
 # Details execution
