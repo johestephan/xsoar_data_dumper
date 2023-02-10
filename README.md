@@ -28,10 +28,8 @@ XSOAR Data Dumper enables the fetching and storing of incidents from XSOAR. The 
 * if the scripts stops during **--run** simply run the command again, the script will resume teh Download
 * If you need to start from scratch, simply delete the **DataDumper.db** and all files **INCIDENT-*.json** or drop the CouchDB database
 
-# Disclaimer
-This is a free script which has been tested against a small instance (1200 incidents). Please report bugs and issues via GitHub. Usage at your own risk
-
 # License
+
     Copyright 2023 by Joerg Stephan
 
     Licensed under the Apache License, Version 2.0 (the "License");
@@ -45,3 +43,12 @@ This is a free script which has been tested against a small instance (1200 incid
     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
     See the License for the specific language governing permissions and
     limitations under the License.
+    
+# Some Statistics, Disclaimer and results
+Tested against 1286 Incidents
+* DB folder Size in XSOAR: **2.1GB**, size in Couchdb: **11.2MB**
+* Execution time: **1:07:31.66**  (1Hour 7 Minutes)
+* The new incident in files or CouchDB will include all incident fields and labels, "Context data" is excluded. For Context data it would be advised to use **!!PrintContext outputformat=json** on XSOAR itself
+* Please report bugs and issues via GitHub 
+* **Usage at your own risk** but that is also what the License tells you :-)
+
