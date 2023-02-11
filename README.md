@@ -1,5 +1,6 @@
 # xsoar_data_dumper
-XSOAR Data Dumper enables the fetching and storing of incidents from XSOAR. The incidents can be stored in JSON files or CouchDB
+XSOAR Data Dumper enables the fetching and storing of incidents from XSOAR. The incidents can be stored in JSON files, CouchDB and MariaDB.
+For usability the best choice might be MariaDB, here the ID and Name will match the incident.id and incident.name. Investigation and Incident data will be stored in two seperated fields.
 
 ## Usage
     usage: DataDumper.py [-h] [--init] [--run] --auth AUTH --base BASE [--couchdb COUCHDB]
@@ -13,6 +14,7 @@ XSOAR Data Dumper enables the fetching and storing of incidents from XSOAR. The 
       --auth AUTH        XSOAR Authkey, Credentials
       --base BASE        XSOAR Base URL
       --couchdb COUCHDB  (Optional) use CouchDB https://username:password@host:port/
+      --mariadb MARIADB  (Optional) use MariaDB 10.10+ username:password:host:port
       
 # Prerequesits
 * Authkey of XSOAR (Settings -> Integrations -> Api Keys)
@@ -22,11 +24,21 @@ XSOAR Data Dumper enables the fetching and storing of incidents from XSOAR. The 
 # Details execution
 * run with **--init** this will create a local DataDumper.db database (sqlite3) so the script can resume the download
 * run with **--run** which will start fetching the incidents
-* Optional **--couchdb DATA** which will write all incidents into CouchDB instead of files
+* (Optional) **--couchdb DATA** which will write all incidents into CouchDB instead of files
+* (Optional) **--mariadb DATA** will write all incidents into MariaDB (Mysql), it uses JSON tables, so 10.10+ is required
 
 # Cleanup Procedures
 * if the scripts stops during **--run** simply run the command again, the script will resume teh Download
 * If you need to start from scratch, simply delete the **DataDumper.db** and all files **INCIDENT-*.json** or drop the CouchDB database
+
+# MariaDB
+The MariaDB option requires that a database "incidents" has been created before starting a **--run**. The following data structure will be created.
+
+    id INT NOT NULL ,
+    name VARCHAR(100) NOT NULL,  
+    incident_data JSON ,
+    investigation_data JSON, 
+    PRIMARY KEY (id
 
 # License
 

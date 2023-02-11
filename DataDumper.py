@@ -9,6 +9,7 @@ urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 import argparse
 import sqlite3
 import couchdb
+import mariadb
 
 
 
@@ -50,6 +51,39 @@ def datadump_to_couchdb(URLload, URLloadi, header, couchLINK):
         cur.execute("UPDATE incidents SET fetched = 'Done' WHERE id = '%s' " % incid[0])
         con.commit()
 
+def datadump_to_mariadb(URLload, URLloadi, header, mariaLINK):
+    creds = mariaLINK.split(":")
+    conn_params= json.loads('''{
+    "user" : "%s",
+    "password" : "%s",
+    "host" : "%s",
+    "port" : %i ,
+    "database" : "incidents"}''' % (creds[0], creds[1], creds[2], int(creds[3])))
+
+    connection= mariadb.connect(**conn_params)
+    cursor= connection.cursor()
+   
+    cursor.execute('''create table if not exists incidents (
+    id INT NOT NULL ,
+    name VARCHAR(100) NOT NULL,  
+    incident_data JSON ,
+    investigation_data JSON, 
+    PRIMARY KEY (id))''')  
+
+    cursor.execute("use incidents")
+    con = sqlite3.connect("DataDumper.db")
+    cur = con.cursor()
+    res = cur.execute("SELECT id FROM incidents WHERE fetched='ToDo'")
+    payload = ('''{"pageSize": 100}''')
+    for incid in res.fetchall():
+        dataset_investigation = requests.post(URLloadi+incid[0], headers=header, data=payload, verify=False)
+        dataset_incident =  requests.get(URLload+incid[0], headers=header, verify=False)
+        JObject = json.loads(dataset_incident.text)
+        JObject2 = json.loads(dataset_investigation.text)
+        cursor.execute('''INSERT INTO incidents(id, name, incident_data, investigation_data) VALUES (?, ?, ?, ?)''', 
+        [int(incid[0]), str(JObject['name'])[:99], json.dumps(JObject), json.dumps(JObject2)])
+        connection.commit()
+        
 
 def datadump(URLload, URLloadi, header):
     con = sqlite3.connect("DataDumper.db")
@@ -75,6 +109,7 @@ if __name__ == '__main__':
     parser.add_argument('--auth', help='XSOAR Authkey, Credentials', required=True)
     parser.add_argument('--base', help='XSOAR Base URL', required=True)
     parser.add_argument('--couchdb', help='(Optional) use CouchDB https://username:password@host:port/')
+    parser.add_argument('--mariadb', help='(Optional) use MariaDB 10.10+ username:password:host:port')
 
     args = parser.parse_args()
     header = json.loads('''{"Authorization" : "%s", 
@@ -88,6 +123,8 @@ if __name__ == '__main__':
     elif args.run:
         if args.couchdb is not None:
             datadump_to_couchdb(URLload,URLloadi, header, args.couchdb)
+        if args.mariadb is not None:
+            datadump_to_mariadb(URLload,URLloadi, header, args.mariadb)
         else:
             datadump(URLload, URLloadi, header) 
 
