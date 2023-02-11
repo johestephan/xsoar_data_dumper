@@ -32,29 +32,35 @@ def createDB(URLsearch, header):
             con.commit()
     print("Found %s Incidents (%s Pages Overall)" % (max_incidents, int(pages) + 1))
 
-def datadump_to_couchdb(URLload, header, couchLINK):
+def datadump_to_couchdb(URLload, URLloadi, header, couchLINK):
     con = sqlite3.connect("DataDumper.db")
     cur = con.cursor()
     res = cur.execute("SELECT id FROM incidents WHERE fetched='ToDo'")
     couch = couchdb.Server(couchLINK)
+    payload = ('''{"pageSize": 100}''')
     if not 'incidents' in couch:
         db = couch.create('incidents')
     db = couch['incidents']
     for incid in res.fetchall():
-        dataset = requests.get(URLload+incid[0], headers=header, verify=False)
-        JObject = json.loads(dataset.text)
+        dataset_investigation = requests.post(URLloadi+incid[0], headers=header, data=payload, verify=False)
+        dataset_incident =  requests.get(URLload+incid[0], headers=header, verify=False)
+        JObject = json.loads(dataset_incident.text)
+        JObject['Investigation'] = json.loads(dataset_investigation.text)
         db.save(JObject)
         cur.execute("UPDATE incidents SET fetched = 'Done' WHERE id = '%s' " % incid[0])
         con.commit()
 
 
-def datadump(URLload, header):
+def datadump(URLload, URLloadi, header):
     con = sqlite3.connect("DataDumper.db")
     cur = con.cursor()
     res = cur.execute("SELECT id FROM incidents WHERE fetched='ToDo'")
+    payload = ('''{"pageSize": 100}''')
     for incid in res.fetchall():
-        dataset = requests.get(URLload+incid[0], headers=header, verify=False)
-        JObject = json.loads(dataset.text)
+        dataset_investigation = requests.post(URLloadi+incid[0], headers=header, data=payload, verify=False)
+        dataset_incident =  requests.get(URLload+incid[0], headers=header, verify=False)
+        JObject = json.loads(dataset_incident.text)
+        JObject['Investigation'] = json.loads(dataset_investigation.text)
         outfile = open("INCIDENT-%s.json"% (incid), "w")
         json.dump(JObject, outfile)
         outfile.close()
@@ -74,15 +80,16 @@ if __name__ == '__main__':
     header = json.loads('''{"Authorization" : "%s", 
           "Content-Type": "application/json", 
           "Accept": "application/json"}''' % (args.auth))
-    URLload = str(args.base) +"/incident/load/"
+    URLloadi = str(args.base) +"/investigation/"
+    URLload = str(args.base) + "/incident/load/"
     URLsearch = str(args.base) + "/incidents/search"
     if args.init:
         createDB(URLsearch, header)
     elif args.run:
         if args.couchdb is not None:
-            datadump_to_couchdb(URLload, header, args.couchdb)
+            datadump_to_couchdb(URLload,URLloadi, header, args.couchdb)
         else:
-            datadump(URLload, header) 
+            datadump(URLload, URLloadi, header) 
 
 
 
