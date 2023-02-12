@@ -38,7 +38,7 @@ The MariaDB option requires that a database "incidents" has been created before 
     name VARCHAR(100) NOT NULL,  
     incident_data JSON ,
     investigation_data JSON, 
-    PRIMARY KEY (id
+    PRIMARY KEY (id)
 
 # License
 
