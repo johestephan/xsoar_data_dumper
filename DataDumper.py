@@ -25,7 +25,7 @@ def createDB(URLsearch, header):
     pages = int(max_incidents) / 50
     #print(pages)
     for page in range(int(pages)+1):
-        payload = '''{"userFilter":false,"filter":{"page":%i,"query":"","size":%i, "sort":[{"field":"id","asc":false}]}}''' % (page, max_incidents)
+        payload = '''{"userFilter":false,"filter":{"page":%i,"query":"","size":50, "sort":[{"field":"id","asc":false}]}}''' % (page, max_incidents)
         indexing = requests.post(URLsearch, data=payload, headers=header, verify=False)
         Jobject = json.loads(indexing.text)
         for line in Jobject.get('data'):
